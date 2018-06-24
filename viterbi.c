@@ -1,8 +1,28 @@
+/*
+Comunicaciones digitales
+Trabajo práctico número 2. 
+UNC-FCEFyN
+
+Profesora: Graciela Corral briones
+Alumnos:
+		Armando, Gaspar
+		Cazajous, Miguel
+		Ceballos, Matías
+		D’Andrea, David
+		Mantay, Rodrigo
+		Tapia, Rodrigo
+
+Consigna n°2: Simulador BPSK con codificador convolucional, ruido AWGN y decodificador de Viterbi
+Junio 2018
+*/
+
+
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
 
+#define ka 7		//Numero de simbolos de entrada
 
 int productopunto(int[],int[]);
 void salida_encoder(int, int, int, int[]);
@@ -11,34 +31,24 @@ void estado (int , int[]);
 int proximoEstado (int , int);
 void traceback(int*, int[]);
 
+
 /*
-float rand_gauss (void) {
-  float v1,v2,s;
-
-  do {
-    v1 = 2.0 * ((float) rand()/RAND_MAX) - 1;
-    v2 = 2.0 * ((float) rand()/RAND_MAX) - 1;
-
-    s = v1*v1 + v2*v2;
-  } while ( s >= 1.0 );
-
-  if (s == 0.0)
-    return 0.0;
-  else
-    return (v1*sqrt(-2.0 * log(s) / s));
-}
+El programa se divide en 3 grandes bloques: Codificador, canal y decodificador.
+Para simplicidad de lectura, en cada bloque se declaran las variables que usarán
+En el encoder convolucional ingresamos los simbolos a ser codificados mediante el vector "b", y mostramos su secuencia de salida.
+En el bloque canal levantamos un archivo de ruidos gaussianos generados en Octave, y lo cargamos en un vector. Dicho vector se suma
+al vector de salida del convoluciona, y el resultado es un vector que ingresará al decodificador.
+En el decodificador recibimos el vector con ruido gaussiano aditivo y se decodifica mediante el algoritmo de Viterbi.
 */
-
-
 int main(int argc, char const *argv[])
 {
 
 
-	//Encoder convolucional
+	// Bloque encoder convolucional
 
-	int ka=7;					//Numero de simbolos
-	int b[7]={1,1,1,-1,-1,1,1};	//vector de símbolos de entrada
-	int salidas[2*ka];			//Vector de salida
+	//int ka=7;						//Numero de simbolos
+	int b[ka]={1,-1,1,-1,-1,1,1};	//vector de símbolos de entrada
+	int salidas[2*ka];				//Vector de salida
 	int bjmenos1=1;				
 	int bjmenos2=1;
 	int bj;
@@ -68,30 +78,24 @@ int main(int argc, char const *argv[])
 	for (m = 0; m < 2*ka; m++)
 	{
 		printf("%d ", salidas[m]);
-		//canal[m]=rand_gauss();
 	}
 	printf("\n");
 
-
-
-
 	//Fin codificador convolucional
 	//***********************
-	/*printf("Ruido: \n");
-	//Aca hay que afectar por ruido AWGN el vector salidas[]
-	for (int r=0; r<2*ka; r++){
-		printf("%f\n", canal[r]);
-	}*/
+
+
+	//Bloque del canal
 
 	FILE *archivo;
 	char buffer[50];
 	int q=0;
 	float var=0;
-	float y[14];		//Vector a decodificar
+	float y[2*ka];		//Vector a decodificar
 
-	printf("ruido:\n");
-	archivo = fopen("ruido.txt","r");
-	//rewind(archivo);
+	printf("\n");
+	printf("Ruido:\n");
+	archivo = fopen("ruido.txt","r");		//Levanto el archivo de ruidos
 	while (!feof(archivo)) {
 		fgets(buffer, 50 ,archivo);
 		var=atof(buffer);
@@ -102,7 +106,9 @@ int main(int argc, char const *argv[])
 	}
 	fclose(archivo);
 
+	printf("\n");
 	printf("Vector a decodificar ya con ruido: \n");
+
 	//Sumo el ruido al vector de salida del codificador
 	for(int ye=0; ye<2*ka; ye++){
 		y[ye]=canal[ye]+salidas[ye];
@@ -110,16 +116,20 @@ int main(int argc, char const *argv[])
 	}
 	printf("\n");
 
-	//Fin AWGN
+	//Fin canal
 	//******************
 
-
+	//Bloque decodificador
 
 
 	int k=5;
 	int estados=4;
 	int MC[estados][k+3];
 	int MEstadoAnterior[estados][k+3];
+	int E[2];
+	int S[2];
+	
+
 	for(int i=0;i<estados;i++){
 		for(int j =0; j<k+3;j++){
 		    MC[i][j]=-9999;
@@ -129,23 +139,7 @@ int main(int argc, char const *argv[])
 	}
 	MC[0][0] = 0;
 
-
-
-	//Copio el vector de salidas del convolucional en el vector y[]. Hago esto por que todo el codigo despues trabaja con y[] 
-	//y me da cuiki meter la pata
-	/*printf("\n");
-	printf("Vamos a decodificar: \n");
-	for (int t=0; t<14; t++){
-		y[t]=salidas[t];
-		printf("%f ",y[t]);
-	}
-	*/
-	//int y[14] = {1,3,-2,1,4,-1,5,5,-3,-3,1,-6,2,-4};
-	int E[2];
-	int S[2];
 	
-
-
 	int MEjes[estados][estados];
 	for(int i=0;i<estados;i++){
 		for(int j =0; j<estados;j++)
@@ -229,15 +223,7 @@ int main(int argc, char const *argv[])
 		proximo_estado=MEstadoAnterior[proximo_estado][j];
 	}
 
-	
-	
-	/*
-	for(int i = 0; i<4;i++){
-	    for(int j=0;j<4;j++){
-	        printf("|       %d\t",MEjes[i][j]);
-	    }
-	    printf("\n");
-	}*/
+
 	
 	printf("\nCOSTOS\n\n");
 	
@@ -265,22 +251,9 @@ int main(int argc, char const *argv[])
 	}
 		    printf("\n");
 
+	//Fin bloque decodificador
+	//***************
 
-
-	//estado(estado_actual, E);
-	//salida_encoder(1,E[0],E[1], S);
-	//int camino1= productopunto(S,y);
-	//printf("%d\n",camino1 );
-
-	//salida_encoder(-1,E[0],E[1], S);
-	//int camino2= productopunto(S,y);
-	//printf("%d\n",camino2 );
-
-	//MC[0][j]=camino1;
-	//MC[1][j]=camino2;
-
-	//int maximo = compara(camino1,camino2);
-	//printf("%d\n",maximo );
 	return 0;
 
 }
@@ -350,27 +323,3 @@ int productopunto(int x[], int y[])
 	return total;
 }
 
-/*
-void traceback(int m[][], int v[]){
-	int* ptr=v;
-	int* MEstadoAnterior= m;
-
-	int ultimo_estado;
-	int proximo_estado;
-	for(int i=0;i<estados;i++){
-		if(MEstadoAnterior[i][7]>-999){
-			ultimo_estado=i;
-			proximo_estado=MEstadoAnterior[i][7];
-		}
-	}
-	int E[2];
-	estado(ultimo_estado,E);
-
-	ptr[6]=E[0];
-
-	for(int j=6;j>0;j--){
-		estado(proximo_estado,E);
-		ptr[j-1]=E[0];
-		proximo_estado=MEstadoAnterior[proximo_estado,j];
-	}
-*/
