@@ -1,0 +1,10 @@
+octave randdd.m
+octave ruido.m
+
+sed -i "1,5d" aux.txt
+grep . aux.txt > rand.txt
+rm aux.txt
+
+sed -i "1,5d" aux2.txt
+grep . aux2.txt > ruido.txt
+rm aux2.txt

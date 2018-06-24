@@ -1,0 +1,5 @@
+1) Realizar el simulador de un sistema de comunicaciones BPSK={+1,-1} donde el canal es modelado mediante un FIR con tres coeficiente [0.3 1 0.2] y el receptor es un 
+detector optimo implementado con el algoritmo de Viterbi. Obtener la curva de BER para SNRdB={1,2,3,4,5}. 
+2) Realizar el simulador de un sistema de comunicaciones BPSK en donde la señal a transmitir es codificada mediante el código convolucional implementado en clase. El 
+canal es AWGN. Obtener la curva de BER en funcion de la SNRdB para la señal sin codificación y con codificación. La señal codificada debe ser escalada por 1/sqrt(2) 
+para mantener la energía del bit de información transmitido.
