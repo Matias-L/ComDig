@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 int productopunto(int[],int[]);
 void salida_encoder(int, int, int, int[]);
@@ -8,7 +9,7 @@ void estado (int , int[]);
 int proximoEstado (int , int);
 void traceback(int*, int[]);
 
-
+/*
 float rand_gauss (void) {
   float v1,v2,s;
 
@@ -24,7 +25,7 @@ float rand_gauss (void) {
   else
     return (v1*sqrt(-2.0 * log(s) / s));
 }
-
+*/
 
 
 int main(int argc, char const *argv[])
@@ -65,7 +66,7 @@ int main(int argc, char const *argv[])
 	for (m = 0; m < 2*ka; m++)
 	{
 		printf("%d ", salidas[m]);
-		canal[m]=rand_gauss();
+		//canal[m]=rand_gauss();
 	}
 	printf("\n");
 
@@ -74,11 +75,43 @@ int main(int argc, char const *argv[])
 
 	//Fin codificador convolucional
 	//***********************
-	printf("Ruido: \n");
+	/*printf("Ruido: \n");
 	//Aca hay que afectar por ruido AWGN el vector salidas[]
 	for (int r=0; r<2*ka; r++){
 		printf("%f\n", canal[r]);
+	}*/
+
+	FILE *archivo;
+	char buffer[50];
+	int q=0;
+	float var=0;
+
+	printf("ruido:\n");
+	archivo = fopen("ruido.txt","r");
+	rewind(archivo);
+	while (q<2*ka) {
+		fgets(buffer, 50 ,archivo);
+		sscanf(buffer, "%f", &var);
+		memset(buffer,0,50);
+		canal[q]=var;
+		q++;
+		printf("%f \n",canal[q] );
 	}
+	fclose(archivo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	//Fin AWGN
 	//******************
@@ -103,6 +136,7 @@ int main(int argc, char const *argv[])
 
 	//Copio el vector de salidas del convolucional en el vector y[]. Hago esto por que todo el codigo despues trabaja con y[] 
 	//y me da cuiki meter la pata
+	printf("\n");
 	printf("Vamos a decodificar: \n");
 	for (int t=0; t<14; t++){
 		y[t]=salidas[t];
