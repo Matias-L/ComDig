@@ -21,7 +21,7 @@ struct  Estado e3;
 struct  Estado e[N];	//vector que almacena los estados posibles
 
 float simbolosEntrada[K]={1,1,1,1,-1,-1,-1,1,-1,1};
-float x[K];	
+int x[K];	//Vector de salida
 int state_matrix[M][N];
 float cost_matrix [M][N];
 
@@ -59,6 +59,7 @@ void inicializaEstados (){
 }
 
 void imprimeMatricez(){
+printf("\n");
 printf("state matrix :\n");
 printf("\n");
 
@@ -84,6 +85,45 @@ printf("____________________\n");
 
 float metricaRama(float salidaDelDestino, float simbolo){
 	return simbolo-salidaDelDestino;
+}
+
+int traceback(){
+
+	//Primero debe buscar la mayor métrica de la ultima columna. 
+	int max=0;
+	for (int i=0; i<=N; i++){
+		if (cost_matrix[M][i]>cost_matrix[M][max]){
+			max=i;
+		}
+	}
+
+	//Luego, empiezo a retroceder buscando los estados.
+	int estado=max;
+	for(int j=M; j<0; j--){
+		estado=state_matrix[j][estado];
+	}
+
+	//Finalmente, desplazo toda la matriz un lugar a la izquierda
+
+	for(int l=0; l<M; l++){
+		for(int h=0; h<N; h++){
+			state_matrix[l][h]=state_matrix[l+1][h];
+			cost_matrix[l][h]=cost_matrix[l+1][h];
+		}
+	}
+
+	//limpio la ultima columna
+
+	for (int r=0; r<N; r++){
+						state_matrix[M][r]=-1;
+				cost_matrix[M][r]=-99999;
+	}
+
+
+
+
+	return estado;
+
 }
 
 
@@ -149,7 +189,7 @@ int main(int argc, char const *argv[])
 
 
 
-	//Regimen estacionario
+	//Regimen estacionario previo llenado de la ventana
 	for(int o=epoch;o<M;o++){
 		for(int estado=0; estado<N; estado++){
 			//Viendo la salida ante entrada positiva
@@ -180,6 +220,54 @@ int main(int argc, char const *argv[])
 
 
 		}
+	}
+	//En este punto la ventana se llena completamente. Ejecuto hasta que no hayan mas simbolos de entrada
+
+printf("X[]: ");
+	while (epoch<=K){
+		x[epoch]=traceback();
+		printf("%d ", x[epoch]);
+
+
+		//Ver si no se puede evitar esta duplicacion de codigo
+
+			//Viendo la salida ante entrada positiva
+			if(state_matrix[M][e[estado].ePos]==-1){
+				state_matrix[M][e[estado].ePos]=e[estado].ePos;
+				cost_matrix[M][e[estado].ePos]=metricaRama(e[estado].salPos, simbolosEntrada[M-1])+cost_matrix[M-1][estado];
+			}
+			else{ //Otro estado escribio en la celda, y hay que quedarse con el maximo
+				//Si el nuevo valor es mayor que el anterior, sobreescribe.
+				//Tambien actualiza la matriz de estados
+				if( (cost_matrix[M-1][estado]+metricaRama(e[estado].salPos, simbolosEntrada[M-1])) > (cost_matrix[M][e[estado].ePos]) )
+				cost_matrix[M][e[estado].ePos]=cost_matrix[M-1][estado]+metricaRama(e[estado].ePos, simbolosEntrada[M-1]);
+				state_matrix[M][e[estado].ePos]=estado;
+			}
+			//Viendo la salida ante entrada negativa
+			if(state_matrix[M][e[estado].eNeg]==-1){
+			state_matrix[M][e[estado].eNeg]=e[estado].eNeg;
+			cost_matrix[M][e[estado].eNeg]=metricaRama(e[estado].salNeg, simbolosEntrada[M-1])+cost_matrix[M-1][estado];
+			}
+				else{ //Otro estado escribio en la celda, y hay que quedarse con el maximo
+				//Si el nuevo valor es mayor que el anterior, sobreescribe.
+				//Tambien actualiza la matriz de estados
+				if( (cost_matrix[M-1][estado]+metricaRama(e[estado].salNeg, simbolosEntrada[M-1])) > (cost_matrix[M][e[estado].eNeg]) )
+				cost_matrix[M][e[estado].eNeg]=cost_matrix[M-1][estado]+metricaRama(e[estado].eNeg, simbolosEntrada[M-1]);
+				state_matrix[M][e[estado].eNeg]=estado;
+			}
+
+
+
+
+		//--------fin duplicacion
+
+
+
+
+
+
+
+		epoch++;
 	}
 
 
