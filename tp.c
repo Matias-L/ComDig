@@ -20,7 +20,7 @@ struct  Estado e2;
 struct  Estado e3;
 struct  Estado e[N];	//vector que almacena los estados posibles
 
-	float simbolosEntrada[K]={1,1,1,1,-1,-1,-1,1,-1,1};
+float simbolosEntrada[K]={1,1,1,1,-1,-1,-1,1,-1,1};
 float x[K];	
 int state_matrix[M][N];
 float cost_matrix [M][N];
@@ -82,6 +82,10 @@ printf("\n");
 printf("____________________\n");
 }
 
+float metricaRama(float salidaDelDestino, float simbolo){
+	return simbolo-salidaDelDestino;
+}
+
 
 
 int main(int argc, char const *argv[])
@@ -108,28 +112,37 @@ int main(int argc, char const *argv[])
 	//Regimen transitorio
 	int epoch=0;		//Indice de profundidad
 	int estado=0;
+	float branchMetric=0;
+
 	state_matrix[epoch][estado]=0;
 	cost_matrix[epoch][estado]=0;
 	state_matrix[epoch][estado]=0;
 
-	state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
-	state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
-	cost_matrix[epoch+1][e[estado].ePos]=e[estado].salPos+cost_matrix[epoch][estado];
-	cost_matrix[epoch+1][e[estado].eNeg]=e[estado].salNeg+cost_matrix[epoch][estado];
+	//state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
+	//state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
+	state_matrix[epoch+1][e[estado].ePos]=estado;
+	state_matrix[epoch+1][e[estado].eNeg]=estado;
+	cost_matrix[epoch+1][e[estado].ePos]=metricaRama(e[estado].salPos, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
+	cost_matrix[epoch+1][e[estado].eNeg]=metricaRama(e[estado].salNeg, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
 
 	epoch=1;
 	estado=0;
-	state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
-	state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
-	cost_matrix[epoch+1][e[estado].ePos]=e[estado].salPos+cost_matrix[epoch][estado];
-	cost_matrix[epoch+1][e[estado].eNeg]=e[estado].salNeg+cost_matrix[epoch][estado];
+	//state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
+	//state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
+	state_matrix[epoch+1][e[estado].ePos]=estado;
+	state_matrix[epoch+1][e[estado].eNeg]=estado;
+	cost_matrix[epoch+1][e[estado].ePos]=metricaRama(e[estado].salPos, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
+	cost_matrix[epoch+1][e[estado].eNeg]=metricaRama(e[estado].salNeg, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
 
 	estado=1;
-	state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
-	state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
-	cost_matrix[epoch+1][e[estado].ePos]=e[estado].salPos+cost_matrix[epoch][estado];
-	cost_matrix[epoch+1][e[estado].eNeg]=e[estado].salNeg+cost_matrix[epoch][estado];
+	//state_matrix[epoch+1][e[estado].ePos]=e[estado].ePos;
+	//state_matrix[epoch+1][e[estado].eNeg]=e[estado].eNeg;
+	state_matrix[epoch+1][e[estado].ePos]=estado;
+	state_matrix[epoch+1][e[estado].eNeg]=estado;
+	cost_matrix[epoch+1][e[estado].ePos]=metricaRama(e[estado].salPos, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
+	cost_matrix[epoch+1][e[estado].eNeg]=metricaRama(e[estado].salNeg, simbolosEntrada[epoch])+cost_matrix[epoch][estado];
 
+	epoch=2;
 
 
 
@@ -142,13 +155,30 @@ int main(int argc, char const *argv[])
 			//Viendo la salida ante entrada positiva
 			if(state_matrix[o+1][e[estado].ePos]==-1){
 				state_matrix[o+1][e[estado].ePos]=e[estado].ePos;
-				cost_matrix[o+1][e[estado].ePos]=e[estado].salPos+cost_matrix[o][estado];
+				cost_matrix[o+1][e[estado].ePos]=metricaRama(e[estado].salPos, simbolosEntrada[o])+cost_matrix[o][estado];
+			}
+			else{ //Otro estado escribio en la celda, y hay que quedarse con el maximo
+				//Si el nuevo valor es mayor que el anterior, sobreescribe.
+				//Tambien actualiza la matriz de estados
+				if( (cost_matrix[o][estado]+metricaRama(e[estado].salPos, simbolosEntrada[o])) > (cost_matrix[o+1][e[estado].ePos]) )
+				cost_matrix[o+1][e[estado].ePos]=cost_matrix[o][estado]+metricaRama(e[estado].ePos, simbolosEntrada[o]);
+				state_matrix[o+1][e[estado].ePos]=estado;
 			}
 			//Viendo la salida ante entrada negativa
 			if(state_matrix[o+1][e[estado].eNeg]==-1){
 			state_matrix[o+1][e[estado].eNeg]=e[estado].eNeg;
-			cost_matrix[o+1][e[estado].eNeg]=e[estado].salNeg+cost_matrix[o][estado];
+			cost_matrix[o+1][e[estado].eNeg]=metricaRama(e[estado].salNeg, simbolosEntrada[o])+cost_matrix[o][estado];
 			}
+				else{ //Otro estado escribio en la celda, y hay que quedarse con el maximo
+				//Si el nuevo valor es mayor que el anterior, sobreescribe.
+				//Tambien actualiza la matriz de estados
+				if( (cost_matrix[o][estado]+metricaRama(e[estado].salNeg, simbolosEntrada[o])) > (cost_matrix[o+1][e[estado].eNeg]) )
+				cost_matrix[o+1][e[estado].eNeg]=cost_matrix[o][estado]+metricaRama(e[estado].eNeg, simbolosEntrada[o]);
+				state_matrix[o+1][e[estado].eNeg]=estado;
+			}
+
+
+
 		}
 	}
 
