@@ -254,6 +254,13 @@ int main(int argc, char const *argv[])
 	//Fin bloque decodificador
 	//***************
 
+	//Guardo el resultado del decodificador en un archivo
+	archivo = fopen("decodificados.txt","w");
+	for (int i = 0; i < ka; i++) {
+		fprintf(archivo, "%d\n", B[i]);
+	}
+	fclose(archivo);
+
 	return 0;
 
 }
