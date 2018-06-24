@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 int productopunto(int[],int[]);
 void salida_encoder(int, int, int, int[]);
@@ -85,33 +87,28 @@ int main(int argc, char const *argv[])
 	char buffer[50];
 	int q=0;
 	float var=0;
+	float y[14];		//Vector a decodificar
 
 	printf("ruido:\n");
 	archivo = fopen("ruido.txt","r");
-	rewind(archivo);
-	while (q<2*ka) {
+	//rewind(archivo);
+	while (!feof(archivo)) {
 		fgets(buffer, 50 ,archivo);
-		sscanf(buffer, "%f", &var);
-		memset(buffer,0,50);
+		var=atof(buffer);
 		canal[q]=var;
-		q++;
 		printf("%f \n",canal[q] );
+		q++;
+		memset(buffer,0,50);
 	}
 	fclose(archivo);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	printf("Vector a decodificar ya con ruido: \n");
+	//Sumo el ruido al vector de salida del codificador
+	for(int ye=0; ye<2*ka; ye++){
+		y[ye]=canal[ye]+salidas[ye];
+		printf("%f \n", y[ye]);
+	}
+	printf("\n");
 
 	//Fin AWGN
 	//******************
@@ -132,16 +129,17 @@ int main(int argc, char const *argv[])
 	}
 	MC[0][0] = 0;
 
-	int y[14];
+
 
 	//Copio el vector de salidas del convolucional en el vector y[]. Hago esto por que todo el codigo despues trabaja con y[] 
 	//y me da cuiki meter la pata
-	printf("\n");
+	/*printf("\n");
 	printf("Vamos a decodificar: \n");
 	for (int t=0; t<14; t++){
 		y[t]=salidas[t];
-		printf("%d ",y[t]);
+		printf("%f ",y[t]);
 	}
+	*/
 	//int y[14] = {1,3,-2,1,4,-1,5,5,-3,-3,1,-6,2,-4};
 	int E[2];
 	int S[2];
