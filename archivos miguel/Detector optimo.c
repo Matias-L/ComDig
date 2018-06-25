@@ -3,17 +3,19 @@
 #include <math.h>
 
 #define N 4
-#define M 7
+//#define M 7
 #define NULO -999
 #define INF 9999
 
+
 double pot(double n){
+
 	return n*n;
 }
 
 double salida_canal(int bj, int bj1, int bj2){
 
-	double S = (0.3*bj) + bj1 +(0.4*bj2);
+	double S = (0.3*bj) + bj1 +(0.2*bj2);
 	return S;
 }
 
@@ -68,11 +70,20 @@ int proximoEstado (int Eactual, int simbolo){
 int main(){
 
 
-	int X[M-1]= {1, -1, -1, -1, 1, 1};
+	int X[]= {1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1};
+	int s = sizeof(X);
+	int M = s/4;
 	double Y[M-1];
 
 	int b1=1;
 	int b2=1;
+
+	printf("\nEntrada | X: ");
+	for(int i = 0; i<M-1;i++){
+		printf("%d  ", X[i]);
+	}
+
+	printf("\nSalida del Canal | Y: ");
 	for(int i=0;i<M-1;i++){
 		Y[i]=salida_canal(X[i],b1,b2);
 		b2=b1;
@@ -149,22 +160,44 @@ int main(){
 		}
 	}
 
-printf("\nCOSTOS\n\n");
+	//TRACEBACK
 
-	for(int i = 3; i>=0;i--){
-	    for(int j=0;j<M;j++){
-	        printf("|\t%4.1f\t",cost_matrix[i][j]);
-	    }
-	    printf("\n");
+	int B[M-1];
+	int e = 0;
+	int *E;
+	for(int i=M-1;i>0;i--){
+		E=estado(e);
+		B[i-1]=E[0];
+
+		e=state_matrix[e][i];
 	}
+
+	printf("\nSalida del TRACEBACK: ");
+
+		    for(int j=0;j<M-1;j++){
+		        printf("%d  ",B[j]);
+		    }
+		    printf("\n");
+
+	printf("\nCOSTOS\n\n");
+
+		for(int i = 3; i>=0;i--){
+		    for(int j=0;j<M;j++){
+		        printf("|\t%4.1f\t",cost_matrix[i][j]);
+		    }
+		    printf("\n");
+		}
 
 	printf("\nEstado Anterior\n\n");
 
-	for(int i = 3; i>=0;i--){
-	    for(int j=0;j<M;j++){
-	        printf("|\t%d\t",state_matrix[i][j]);
-	    }
-	    printf("\n");
-	}
+		for(int i = 3; i>=0;i--){
+		    for(int j=0;j<M;j++){
+		        printf("|\t%d\t",state_matrix[i][j]);
+		    }
+		    printf("\n");
+		}
+
+
+
 
 }

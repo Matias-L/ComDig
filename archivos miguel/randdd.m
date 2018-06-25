@@ -1,5 +1,4 @@
-R = randi([0 1],1,1000);
-
+R = randi([0 1],10,1);
 
 for i = 1:length(R)
 if R(i) ==0
